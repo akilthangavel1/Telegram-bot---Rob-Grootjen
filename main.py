@@ -113,7 +113,7 @@ async def set_timer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             # args[0] should contain the time for the timer in seconds
             job_removed = remove_job_if_exists(str(chat_id), context)
             # context.job_queue.run_daily(alarm, due, chat_id=chat_id, name=str(chat_id), data=due)
-            context.job_queue.run_repeating(alarm, interval=10, first=10, data=str(chat_id), chat_id=chat_id)
+            context.job_queue.run_repeating(alarm, interval=86400, first=10, data=str(chat_id), chat_id=chat_id)
 
             text = "Timer successfully set!"
             if job_removed:
