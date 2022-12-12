@@ -168,12 +168,18 @@ def main() -> None:
     application.add_handler(CommandHandler("set", set_timer))
     application.add_handler(CommandHandler("adduser", add_user_command))
     application.add_handler(CommandHandler("addchannel", add_channel_command))
-    # application.run_webhook(listen="0.0.0.0",
+    # application.run_webhook(url_path="5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U")
+    application.run_webhook(
+    listen="0.0.0.0",
+    port=PORT,
+    url_path="5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U",
+    webhook_url="https://mighty-everglades-75025.herokuapp.com/" + "5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U")
+
+    # application.start_webhook(listen="0.0.0.0",
     #                       port=int(PORT),
-    #                       url_path='http://mighty-everglades-75025.herokuapp.com/' + "5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U")
-    # application.bot.set_webhook('http://mighty-everglades-75025.herokuapp.com/' + "5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U")
-    # application.idle()
-    application.run_polling()
+    #                       url_path=TOKEN)
+    # application.bot.setWebhook('https://yourherokuappname.herokuapp.com/' + TOKEN)
+    # application.run_polling()
 
 
 if __name__ == "__main__":
