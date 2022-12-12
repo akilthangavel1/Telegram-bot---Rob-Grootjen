@@ -14,7 +14,7 @@ if __version_info__ < (20, 0, 0, "alpha", 1):
         f"visit https://docs.python-telegram-bot.org/en/v{TG_VER}/examples.html"
     )
 from telegram import LabeledPrice, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, Updater
+from telegram.ext import Application, CommandHandler, ContextTypes
 
 
 PAYMENT_PROVIDER_TOKEN = "1877036958:TEST:efbdf841187055838c9fbb4b79ae32f073afb030"
@@ -158,9 +158,7 @@ async def add_channel_command(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 
 def main() -> None:
-    # application = Application.builder().token("5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U").build()
-    updater = Updater("5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U", use_context=True)
-    application = updater.dispatcher
+    application = Application.builder().token("5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U").build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("aboutme", aboutme_command))
     application.add_handler(CommandHandler("contactinfo", contactinfo_command))
@@ -170,11 +168,11 @@ def main() -> None:
     application.add_handler(CommandHandler("set", set_timer))
     application.add_handler(CommandHandler("adduser", add_user_command))
     application.add_handler(CommandHandler("addchannel", add_channel_command))
-    updater.start_webhook(listen="0.0.0.0",
+    application.run_webhook(listen="0.0.0.0",
                           port=int(PORT),
                           url_path="5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U")
-    updater.bot.setWebhook('https://mighty-everglades-75025.herokuapp.com/' + "5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U")
-    updater.idle()
+    application.bot.set_webhook('https://mighty-everglades-75025.herokuapp.com/' + "5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U")
+    application.idle()
 
 
 if __name__ == "__main__":
