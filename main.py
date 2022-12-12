@@ -84,7 +84,7 @@ async def resumeservice_command(update: Update, context: ContextTypes.DEFAULT_TY
 
 Did you know recruiters sometimes discard candidates if they're not able to read the resume clearly?
 
-It costs $10 USD and I will create it in English.
+It costs $20 USD and I will create it in English.
 
 If you're interested, please send me your resume and pay here:
 grootjentech.gumroad.com/l/resumeservice """)
