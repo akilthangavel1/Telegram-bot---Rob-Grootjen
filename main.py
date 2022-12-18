@@ -21,7 +21,6 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 from telegram.constants import ParseMode
 
-PAYMENT_PROVIDER_TOKEN = "1877036958:TEST:efbdf841187055838c9fbb4b79ae32f073afb030"
 # Enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -30,8 +29,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 accessUserId = [912008246, 1730680339]
-# forwardChannelIds = [-1001643352266]
-forwardChannelIds = [-1001808402675]
+forwardChannelIds = []
+# forwardChannelIds = [-1001808402675, -1001643352266]
 
 
 
@@ -223,7 +222,7 @@ async def bad_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 
 def main() -> None:
-    application = Application.builder().token("5909544940:AAHCNCJgz_H7YxWTRD2t1YJ3B74v8xOiFkA").build()
+    application = Application.builder().token("5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U").build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("aboutme", aboutme_command))
     application.add_handler(CommandHandler("contactinfo", contactinfo_command))
@@ -240,9 +239,9 @@ def main() -> None:
     listen="0.0.0.0",
     port=PORT,
     url_path="5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U",
-    webhook_url="https://mighty-everglades-75025.herokuapp.com/" + "5909544940:AAHCNCJgz_H7YxWTRD2t1YJ3B74v8xOiFkA")
+    webhook_url="https://mighty-everglades-75025.herokuapp.com/" + "5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U")
 
-    application.bot.setWebhook("https://mighty-everglades-75025.herokuapp.com/" + "5909544940:AAHCNCJgz_H7YxWTRD2t1YJ3B74v8xOiFkA")
+    application.bot.setWebhook("https://mighty-everglades-75025.herokuapp.com/" + "5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U")
     # application.run_polling()
 
 
