@@ -1,4 +1,8 @@
 import logging
+import traceback
+import html
+import json
+import pickle
 from telegram import __version__ as TG_VER
 import os
 PORT = int(os.environ.get('PORT', 5000))
@@ -13,9 +17,9 @@ if __version_info__ < (20, 0, 0, "alpha", 1):
         f"{TG_VER} version of this example, "
         f"visit https://docs.python-telegram-bot.org/en/v{TG_VER}/examples.html"
     )
-from telegram import LabeledPrice, Update
+from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
-
+from telegram.constants import ParseMode
 
 PAYMENT_PROVIDER_TOKEN = "1877036958:TEST:efbdf841187055838c9fbb4b79ae32f073afb030"
 # Enable logging
@@ -26,8 +30,32 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 accessUserId = [912008246, 1730680339]
-forwardChannelIds = [-1001643352266]
-dbopen = {"op": ""}
+# forwardChannelIds = [-1001643352266]
+forwardChannelIds = [-1001808402675]
+
+
+
+def insert_data_into_pickle(opData):
+    data = []
+    data.append(opData)
+    # open a file, where you ant to store the data
+    file = open('openpositions', 'wb')
+    # dump information to that file
+    pickle.dump(data, file)
+    # close the file
+    file.close()
+
+
+def read_data_pickle():
+    import pickle
+    # open a file, where you stored the pickled data
+    file = open('openpositions', 'rb')
+    # dump information to that file
+    data = pickle.load(file)
+    # close the file
+    file.close()
+    return data[0]
+
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
@@ -75,7 +103,8 @@ Linkedin: https://www.linkedin.com/in/robert-grootjen-08a10b15a/""")
 
 
 async def openpositions_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text(dbopen['op'])
+    currentOpenPositions = read_data_pickle()
+    await update.message.reply_text(currentOpenPositions)
 
 
 async def resumeservice_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -91,9 +120,9 @@ grootjentech.gumroad.com/l/resumeservice """)
 
 
 async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
-    global dbopen
+    currentOpenPositions = read_data_pickle()
     for i in forwardChannelIds:
-        await context.bot.send_message(i, text=dbopen['op'])
+        await context.bot.send_message(i, text=currentOpenPositions)
 
 
 def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
@@ -134,7 +163,7 @@ async def add_openpositions_command(update: Update, context: ContextTypes.DEFAUL
     
     chat_id = update.effective_message.chat_id
     if chat_id in accessUserId:
-        dbopen["op"] = currentOpenpositions
+        insert_data_into_pickle(currentOpenpositions)
         await update.message.reply_text("Open positions updated successfully")
     else:
         await update.effective_message.reply_text("You are not authorized to access ")
@@ -156,9 +185,45 @@ async def add_channel_command(update: Update, context: ContextTypes.DEFAULT_TYPE
     else:
         await update.effective_message.reply_text("You are not authorized to access ")
 
+DEVELOPER_CHAT_ID = "912008246"
+
+
+async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Log the error and send a telegram message to notify the developer."""
+    # Log the error before we do anything else, so we can see it even if something breaks.
+    logger.error(msg="Exception while handling an update:", exc_info=context.error)
+
+    # traceback.format_exception returns the usual python message about an exception, but as a
+    # list of strings rather than a single string, so we have to join them together.
+    tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
+    tb_string = "".join(tb_list)
+
+    # Build the message with some markup and additional information about what happened.
+    # You might need to add some logic to deal with messages longer than the 4096 character limit.
+    update_str = update.to_dict() if isinstance(update, Update) else str(update)
+    message = (
+        f"An exception was raised while handling an update\n"
+        f"<pre>update = {html.escape(json.dumps(update_str, indent=2, ensure_ascii=False))}"
+        "</pre>\n\n"
+        f"<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n\n"
+        f"<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n"
+        f"<pre>{html.escape(tb_string)}</pre>"
+    )
+
+    # Finally, send the message
+    await context.bot.send_message(
+        chat_id=DEVELOPER_CHAT_ID, text=message, parse_mode=ParseMode.HTML
+    )
+
+
+
+async def bad_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Raise an error to trigger the error handler."""
+    await context.bot.wrong_method_name()  # type: ignore[attr-defined]
+
 
 def main() -> None:
-    application = Application.builder().token("5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U").build()
+    application = Application.builder().token("5909544940:AAHCNCJgz_H7YxWTRD2t1YJ3B74v8xOiFkA").build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("aboutme", aboutme_command))
     application.add_handler(CommandHandler("contactinfo", contactinfo_command))
@@ -168,17 +233,16 @@ def main() -> None:
     application.add_handler(CommandHandler("set", set_timer))
     application.add_handler(CommandHandler("adduser", add_user_command))
     application.add_handler(CommandHandler("addchannel", add_channel_command))
-    # application.run_webhook(url_path="5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U")
+    application.add_handler(CommandHandler("bad_command", bad_command))
+    # ...and the error handler
+    application.add_error_handler(error_handler)
     application.run_webhook(
     listen="0.0.0.0",
     port=PORT,
     url_path="5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U",
-    webhook_url="https://mighty-everglades-75025.herokuapp.com/" + "5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U")
+    webhook_url="https://mighty-everglades-75025.herokuapp.com/" + "5909544940:AAHCNCJgz_H7YxWTRD2t1YJ3B74v8xOiFkA")
 
-    # application.start_webhook(listen="0.0.0.0",
-    #                       port=int(PORT),
-    #                       url_path=TOKEN)
-    application.bot.setWebhook("https://mighty-everglades-75025.herokuapp.com/" + "5860704176:AAHYGwwnky3kPmsYW44TpHleMv6BqbDRN3U")
+    application.bot.setWebhook("https://mighty-everglades-75025.herokuapp.com/" + "5909544940:AAHCNCJgz_H7YxWTRD2t1YJ3B74v8xOiFkA")
     # application.run_polling()
 
 
